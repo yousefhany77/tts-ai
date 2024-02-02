@@ -110,6 +110,8 @@
     ]
   },
   "dependencies": {
-    "@vitest/coverage-v8": "^1.2.2"
+    "@vitest/coverage-v8": "^1.2.2",
+    "openai": "^4.26.0",
+    "zod": "^3.22.4"
   }
 }
