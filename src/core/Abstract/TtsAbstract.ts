@@ -1,8 +1,12 @@
 import { randomUUID } from 'crypto';
-import { createWriteStream, existsSync, mkdirSync } from 'fs';
+import { existsSync, promises as fs, mkdirSync } from 'fs';
+import { dirname } from 'path';
 import * as z from 'zod';
+import { FlattenZodError } from '~/decorators';
+import { IsArrayBuffer } from '~/decorators/isArrayBuffer';
 import Settings from '../Settings';
-import TSettings, { ProviderKeys } from '../types/TSettings';
+import { ProviderKeys } from '../TtsProviders';
+import TSettings from '../types/TSettings';
 
 /**
  * TtsAbstract class
@@ -10,7 +14,9 @@ import TSettings, { ProviderKeys } from '../types/TSettings';
  * @template P - The type of provider keys.
  */
 export abstract class TtsAbstract<P extends ProviderKeys> {
-  public audioDir = 'audio';
+  public readonly audioDir = 'audio';
+
+  @IsArrayBuffer(true)
   protected audio: ArrayBuffer | null = null;
   protected readonly _settings: Settings<P, TSettings<P>>;
 
@@ -27,9 +33,10 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
    * @throws {Error} If the audio is not of type ArrayBuffer.
    * @returns {ArrayBuffer} The audio as an ArrayBuffer.
    */
+  @FlattenZodError
   protected getOrThrowAudio(): ArrayBuffer {
     const schema = z.instanceof(ArrayBuffer, {
-      message: 'audio is not of type ArrayBuffer',
+      message: this.audio ? 'audio is not of type ArrayBuffer' : 'audio is required',
     });
     return schema.parse(this.audio);
   }
@@ -42,7 +49,9 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
    * const tts = new TtsOpenAi({ provider: TtsProviders.OpenAi });
    * tts.speak('Hello World').then((audioArrayBuffer) => console.log(audioArrayBuffer));
    */
-  public abstract speak(text: string): Promise<Omit<this, 'save' | 'upload'>>;
+  public abstract speak(text: string): Promise<Omit<this, 'speak'>>;
+
+  public abstract listModels(): Promise<string[]>;
 
   /**
    * Saves the audio in `this.audio` to a local file.
@@ -52,38 +61,29 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
    * const tts = new TtsOpenAi({ provider: TtsProviders.OpenAi });
    * tts.speak('Hello World').then(() => tts.save('./hello-world.mp3'));
    */
-  public save(filePath?: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!filePath) {
-        // check or create folder `audio` in the current directory
-        const audioFolderDirExists = existsSync(this.audioDir);
-        if (!audioFolderDirExists) {
-          // create folder if not exists
-          mkdirSync(this.audioDir);
-        }
-        // set file path to audio folder
-        filePath = `${this.audioDir}/${randomUUID()}.mp3`;
-      }
-      const path = z
-        .string({
-          invalid_type_error: 'file path is not of type string',
-          required_error: 'file path is required',
-        })
-        .parse(filePath);
-      const audio = this.getOrThrowAudio();
-      const stream = createWriteStream(path);
+  @FlattenZodError
+  public async save(filePath?: string): Promise<string> {
+    if (!filePath) {
+      filePath = `${this.audioDir}/${randomUUID()}.mp3`;
+    }
 
-      stream.on('finish', () => {
-        resolve(path);
-      });
+    const path = await z
+      .string({
+        invalid_type_error: 'file path is not of type string',
+        required_error: 'file path is required',
+      })
+      .parseAsync(filePath);
 
-      stream.on('error', (err) => {
-        reject(err);
-      });
+    const audio = this.getOrThrowAudio();
 
-      stream.write(Buffer.from(audio));
-      stream.end();
-    });
+    const folderPath = dirname(path);
+    if (!existsSync(folderPath)) {
+      mkdirSync(folderPath, { recursive: true });
+    }
+
+    await fs.writeFile(path, Buffer.from(audio));
+
+    return path;
   }
 
   /**
@@ -94,6 +94,7 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
    * const tts = new TtsOpenAi({ provider: TtsProviders.OpenAi, storageApiUrl: 'https://storage-api.com/upload' });
    * tts.speak('Hello World').then(() => tts.upload()).then((url) => console.log(url));
    */
+  @FlattenZodError
   public async upload(): Promise<string> {
     const audio = this.getOrThrowAudio();
 

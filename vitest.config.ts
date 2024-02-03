@@ -19,5 +19,6 @@ export default defineConfig({
         statements: 80,
       },
     },
+    isolate: true,
   },
 });

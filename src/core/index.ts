@@ -1,5 +1,5 @@
-export { TtsAbstract as default } from './Abstract/TtsAbstract';
+export { TtsAbstract } from './Abstract/TtsAbstract';
 export * from './Settings';
-export { TtsProviders } from './TtsProviders';
+export * from './TtsProviders';
 
 export * from './types';

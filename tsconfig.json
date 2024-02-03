@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "ES5",
+    "target": "ES2022",
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "module": "NodeNext",

@@ -1,7 +1,5 @@
 import { OpenAI } from 'openai';
-import TtsProviders from '../TtsProviders';
-
-type ProviderKeys = keyof typeof TtsProviders;
+import { ProviderKeys, TtsProviders } from '../TtsProviders';
 
 type SpeechCreateParams = Parameters<OpenAI['audio']['speech']['create']>[0];
 
@@ -18,6 +16,11 @@ interface DefaultSettings {
   storageApiUrl?: string;
 
   fetchOptions?: Omit<RequestInit, 'body' | 'method'>;
+
+  /**
+   * audioDir is the directory to save the audio in
+   */
+  audioDir?: string;
 }
 
 interface TGoogleSettings extends DefaultSettings {
@@ -39,12 +42,4 @@ type TSettings<P extends ProviderKeys> = P extends TtsProviders.Google
       ? TOpenAiSettings
       : never;
 
-export {
-  DefaultSettings,
-  ProviderKeys,
-  TElevenLabsSettings,
-  TGoogleSettings,
-  TOpenAiSettings,
-  TSettings,
-  TSettings as default,
-};
+export { DefaultSettings, TElevenLabsSettings, TGoogleSettings, TOpenAiSettings, TSettings, TSettings as default };

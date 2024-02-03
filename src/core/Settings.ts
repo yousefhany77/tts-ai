@@ -1,5 +1,7 @@
-import { TtsProviders, validateProvider } from '~/core/TtsProviders';
-import TSettings, { ProviderKeys } from '~/core/types/TSettings';
+import z from 'zod';
+import { fromZodError } from 'zod-validation-error';
+import { ProviderKeys, TtsProviders, validateProvider } from '~/core/TtsProviders';
+import TSettings from '~/core/types/TSettings';
 import { Env } from '~/utils/Env';
 /**
  * Settings class
@@ -19,7 +21,21 @@ class Settings<P extends ProviderKeys, T extends TSettings<P>> {
     /**
      * check or throw for apiKey
      */
-    this._settings.apiKey = Env.get(this._settings.provider + '_TTS_API_KEY', this._settings?.apiKey).toString();
+    const apikeyValidation = z.string().optional().safeParse(this._settings.apiKey);
+    if (apikeyValidation.success === false) {
+      throw fromZodError(apikeyValidation.error);
+    }
+
+    this._settings.apiKey = Env.get(this._settings.provider + '_TTSf_API_KEY', apikeyValidation.data).toString();
+
+    /**
+     * check or throw for audioDir
+     */
+    const audioDirValidation = z.string().optional().safeParse(this._settings.audioDir);
+    if (!audioDirValidation.success) {
+      throw fromZodError(audioDirValidation.error);
+    }
+    this._settings.audioDir = audioDirValidation.data;
   }
 
   // type safe get settings related to the provider
@@ -32,7 +48,7 @@ class Settings<P extends ProviderKeys, T extends TSettings<P>> {
   }
 }
 
-export class DefaultSettings {
+class DefaultSettings {
   static get OpenAiSettings(): Omit<TSettings<TtsProviders.OpenAi>, 'input'> {
     return {
       provider: TtsProviders.OpenAi,
@@ -44,4 +60,5 @@ export class DefaultSettings {
     };
   }
 }
-export default Settings;
+
+export { DefaultSettings, Settings as default };

@@ -1,17 +1,24 @@
 import * as z from 'zod';
+import { fromZodError } from 'zod-validation-error';
 
 enum TtsProviders {
   Google = 'Google',
   ElevenLabs = 'ElevenLabs',
   OpenAi = 'OpenAi',
 }
-const schema = z.nativeEnum(TtsProviders, {
-  invalid_type_error: `TtsProvider must be a valid TtsProvider enum value ${Object.values(TtsProviders).toString()}`,
-  required_error: `TtsProvider is required ${Object.values(TtsProviders).toString()}`,
-});
+/**
+ * Represents the keys of the TtsProviders object.
+ */
+type ProviderKeys = keyof typeof TtsProviders;
+
+const schema = z.nativeEnum(TtsProviders);
 
 const validateProvider = (value: unknown): TtsProviders => {
-  return schema.parse(value);
+  const validation = schema.safeParse(value);
+  if (validation.success) {
+    return validation.data;
+  }
+  throw fromZodError(validation.error);
 };
 
-export { TtsProviders, TtsProviders as default, validateProvider };
+export { ProviderKeys, TtsProviders, TtsProviders as default, validateProvider };
