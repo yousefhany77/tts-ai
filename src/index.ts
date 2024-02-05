@@ -1,10 +1,15 @@
 import { TtsOpenAi } from './Providers/OpenAi';
 
-const tts = new TtsOpenAi();
-
 const main = async (): Promise<string> => {
-  const audio = await tts.speak('Hello, world!');
-  return audio.save();
+  try {
+    const tts = new TtsOpenAi({
+      apiKey: 123,
+    });
+    const audio = await tts.speak('Hello, world!');
+    return audio.save();
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 void main();

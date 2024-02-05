@@ -35,7 +35,7 @@
     "build": "tsup --format cjs,esm --dts",
     "dev": "tsup --watch",
     "format": "prettier --write .",
-    "lint": "eslint ./src/ ./tests/ --fix",
+    "lint": "eslint ./src/  --fix",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
