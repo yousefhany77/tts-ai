@@ -7,7 +7,7 @@ describe('DefaultSettings', () => {
     vi.resetAllMocks();
   });
 
-  it.only('should return the default OpenAi settings', () => {
+  it('should return the default OpenAi settings', () => {
     const expectedSettings: TOpenAiSettings = {
       provider: TtsProviders.OpenAi,
       voice: 'onyx',
