@@ -51,6 +51,9 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
    */
   public abstract speak(text: string): Promise<Omit<this, 'speak'>>;
 
+  /**
+   * Lists the available voices for the TTS provider.
+   */
   public abstract listModels(): Promise<string[]>;
 
   /**
@@ -148,5 +151,21 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
       })
       .parse(json);
     return uploadedUrl;
+  }
+
+  /**
+   * change the voice of the tts
+   */
+  @FlattenZodError
+  public setVoice(voice: string): void {
+    this._settings.set('voice', voice);
+  }
+
+  /**
+   * change AI model of the tts
+   */
+  @FlattenZodError
+  public setModel(model: string): void {
+    this._settings.set('model', model);
   }
 }

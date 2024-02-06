@@ -1,8 +1,9 @@
 import z, { ZodError } from 'zod';
 import { ValidationError } from 'zod-validation-error';
-import { ProviderKeys, TtsProviders, validateProvider } from '~/core/TtsProviders';
+import { ProviderKeys, validateProvider } from '~/core/TtsProviders';
 import TSettings from '~/core/types/TSettings';
 import { Env } from '~/utils/Env';
+import DefaultSettings from './DefaultSettings';
 /**
  * Settings class
  * settings for each TTS provider
@@ -56,18 +57,6 @@ class Settings<P extends ProviderKeys, T extends TSettings<P> = TSettings<P>> {
     }
 
     this._settings[key] = value;
-  }
-}
-
-class DefaultSettings {
-  static get OpenAiSettings(): Omit<TSettings<TtsProviders.OpenAi>, 'input'> {
-    return {
-      provider: TtsProviders.OpenAi,
-      voice: 'onyx',
-      speed: 1,
-      model: 'tts-1',
-      response_format: 'mp3',
-    };
   }
 }
 
