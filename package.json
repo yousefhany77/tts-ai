@@ -55,7 +55,8 @@
     "semantic-release": "^23.0.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.2"
+    "vitest": "^1.2.2",
+    "@vitest/coverage-v8": "^1.2.2"
   },
   "publishConfig": {
     "access": "public"
@@ -110,9 +111,10 @@
     ]
   },
   "dependencies": {
-    "@vitest/coverage-v8": "^1.2.2",
-    "openai": "^4.26.0",
     "zod": "^3.22.4",
     "zod-validation-error": "^3.0.0"
+  },
+  "peerDependencies": {
+    "openai": "^4.26.0"
   }
 }
