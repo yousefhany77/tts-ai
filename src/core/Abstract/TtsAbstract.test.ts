@@ -93,7 +93,7 @@ describe('TtsAbstract', () => {
       await expect(tts.upload()).rejects.toThrowError(ValidationError);
     });
     it('should throw an error if upload fails', async () => {
-      global.fetch = vi.fn().mockImplementation(() =>
+      global.fetch = vi.fn().mockImplementationOnce(() =>
         Promise.resolve({
           json: () => Promise.resolve({ error: 'failed to upload audio' }),
           ok: false,

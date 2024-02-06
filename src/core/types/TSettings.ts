@@ -1,5 +1,6 @@
 import { OpenAI } from 'openai';
 import { ProviderKeys, TtsProviders } from '../TtsProviders';
+import { TElevenLabsVoiceSettings } from './TElevenLabs';
 
 type SpeechCreateParams = Parameters<OpenAI['audio']['speech']['create']>[0];
 
@@ -7,6 +8,7 @@ interface DefaultSettings {
   provider: TtsProviders;
   apiKey?: string;
   voice?: string;
+  model?: string;
 
   /**
    * storageApiUrl is the url of the storage api server to upload the audio to it instead of saving it locally
@@ -28,6 +30,10 @@ interface TGoogleSettings extends DefaultSettings {
 }
 interface TElevenLabsSettings extends DefaultSettings {
   provider: TtsProviders.ElevenLabs;
+  /**
+   * in case of changing the voice settings other than the default from ElevenLabs
+   */
+  voiceSettings?: TElevenLabsVoiceSettings;
 }
 interface TOpenAiSettings extends DefaultSettings, Omit<SpeechCreateParams, 'voice' | 'model' | 'input'> {
   provider: TtsProviders.OpenAi;

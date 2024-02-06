@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 import { resolve } from 'node:path';
-import { defineConfig } from 'vitest/config';
+import { defaultExclude, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
@@ -18,6 +18,7 @@ export default defineConfig({
         functions: 80,
         statements: 80,
       },
+      exclude: [...defaultExclude, 'src/core/types/**'],
     },
     isolate: true,
     unstubEnvs: true,
