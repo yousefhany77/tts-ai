@@ -16,8 +16,10 @@ export function FlattenZodError<
   _propertyKey: string | symbol,
   descriptor: TypedPropertyDescriptor<Fn>
 ): TypedPropertyDescriptor<Fn> {
+  if (!descriptor || typeof descriptor.value !== 'function') {
+    throw new Error('This decorator can only be used on methods');
+  }
   const originalMethod = descriptor.value;
-  if (!originalMethod) throw new Error('Method not found');
 
   const newMethod = function (this: ThisType, ...args: Args) {
     const result = originalMethod.apply(this, args);

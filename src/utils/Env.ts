@@ -20,9 +20,6 @@ class EnvValue {
 export class Env {
   static get(key: string, defaultValue?: string | number | boolean, options?: Options): EnvValue {
     const value = process.env[key] ?? defaultValue;
-    if (value === defaultValue) {
-      console.warn(`Environment variable ${key} not found, using default value`);
-    }
 
     if (!value) {
       throw new ValidationError(options?.errorMessage ?? `Environment variable ${key} not found`);

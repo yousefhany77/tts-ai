@@ -34,7 +34,7 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
    * @returns {ArrayBuffer} The audio as an ArrayBuffer.
    */
   @FlattenZodError
-  protected getOrThrowAudio(): ArrayBuffer {
+  public getOrThrowAudio(): ArrayBuffer {
     const schema = z.instanceof(ArrayBuffer, {
       message: 'audio is not of type ArrayBuffer',
     });

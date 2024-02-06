@@ -12,7 +12,7 @@ export function OmitThisProperties<T, Method extends (this: Omit<T, MethodKeys<T
     _propertyKey: keyof T,
     descriptor: TypedPropertyDescriptor<Method>
   ): TypedPropertyDescriptor<Method> {
-    if (!descriptor.value) {
+    if (!descriptor || typeof descriptor.value !== 'function') {
       throw new Error('This decorator can only be used on methods');
     }
     const originalMethod = descriptor.value;
@@ -20,24 +20,30 @@ export function OmitThisProperties<T, Method extends (this: Omit<T, MethodKeys<T
     descriptor.value = function (this: Omit<T, MethodKeys<T>>, ...args: any[]) {
       const result = originalMethod.apply(this, args);
       if (result instanceof Promise) {
-        return result.then((res) => omit(res, props));
+        return result.then((res) => {
+          for (const prop of props) {
+            omit(res, prop);
+          }
+
+          return res as Omit<T, MethodKeys<T>>;
+        });
       }
-      return omit(result, props);
+      for (const prop of props) {
+        omit(result, prop);
+      }
+      return result as Omit<T, MethodKeys<T>>;
     } as Method;
 
     return descriptor;
   };
 }
 
-function omit<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
-  //  write a function to omit the specified properties from the `this` object and return the result
-  const result = obj;
-  for (const key of keys) {
-    delete result[key];
-  }
-  return result;
-}
-
 type MethodKeys<T> = {
   [K in keyof T]: K;
 }[keyof T];
+
+const omit = <T>(res: T, prop: keyof T): T => {
+  return Object.defineProperty(res, prop, {
+    value: undefined,
+  });
+};

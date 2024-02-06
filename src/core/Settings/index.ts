@@ -24,7 +24,7 @@ class Settings<P extends ProviderKeys, T extends TSettings<P> = TSettings<P>> {
        */
       const validApiKey = z.string().optional().parse(this._settings.apiKey);
 
-      this._settings.apiKey = validApiKey || Env.get(this._settings.provider + '_TTSf_API_KEY').toString();
+      this._settings.apiKey = validApiKey || Env.get(this._settings.provider + '_TTS_API_KEY').toString();
 
       /**
        * check or throw for audioDir
@@ -63,7 +63,6 @@ class DefaultSettings {
   static get OpenAiSettings(): Omit<TSettings<TtsProviders.OpenAi>, 'input'> {
     return {
       provider: TtsProviders.OpenAi,
-      apiKey: Env.get(TtsProviders.OpenAi + '_TTS_API_KEY').toString(),
       voice: 'onyx',
       speed: 1,
       model: 'tts-1',

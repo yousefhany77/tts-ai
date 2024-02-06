@@ -15,6 +15,6 @@
     "sourceMap": true,
     "strict": true,
   },
-  "include": ["./src/**/*.ts", "./src/**/*.test.ts"],
+  "include": ["./src/**/*.ts", "./src/**/*.test.ts", "__mocks__/openai.ts"],
   "exclude": ["node_modules", "dist"],
 }

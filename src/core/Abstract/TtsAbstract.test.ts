@@ -1,4 +1,4 @@
-import { unlink } from 'fs';
+import { existsSync, rmdirSync, unlink, unlinkSync } from 'fs';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import { ValidationError } from 'zod-validation-error';
 import { TtsAbstract } from '~/core';
@@ -54,6 +54,29 @@ describe('TtsAbstract', () => {
       expect(filePath).toBe('./custom-path/hello-world.mp3');
       // cleanup
       unlink(filePath, () => {});
+    });
+    it('should create the directory if it does not exist', async () => {
+      // Arrange
+      const nonExistentFolderPath = './nonExistentFolder';
+      const filePath = `${nonExistentFolderPath}/file.txt`;
+
+      // Ensure the folder does not exist for the purpose of this test
+      if (existsSync(nonExistentFolderPath)) {
+        unlinkSync(filePath);
+        rmdirSync(nonExistentFolderPath);
+      }
+
+      const instance = new MockTtsAbstract(mockSettings);
+
+      // Act
+      await instance.save(filePath);
+
+      // Assert
+      expect(existsSync(nonExistentFolderPath)).toBe(true);
+
+      // Clean up
+      unlinkSync(filePath);
+      rmdirSync(nonExistentFolderPath);
     });
 
     it('should throw an error if file path is not a string', async () => {

@@ -20,5 +20,6 @@ export default defineConfig({
       },
     },
     isolate: true,
+    unstubEnvs: true,
   },
 });
