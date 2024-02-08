@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { existsSync, promises as fs, mkdirSync } from 'fs';
 import { dirname } from 'path';
 import * as z from 'zod';
+import { ValidationError } from 'zod-validation-error';
 import { FlattenZodError } from '~/decorators';
 import { IsArrayBuffer } from '~/decorators/isArrayBuffer';
 import Settings from '../Settings';
@@ -89,68 +90,17 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
     return path;
   }
 
-  /**
-   * Uploads the audio in `this.audio` to a storage server specified in the settings.
-   * @returns {Promise<string>} A promise that resolves with the URL of the uploaded audio.
-   * @throws {Error} If the audio fails to upload.
-   * @example
-   * const tts = new TtsOpenAi({ provider: TtsProviders.OpenAi, storageApiUrl: 'https://storage-api.com/upload' });
-   * tts.speak('Hello World').then(() => tts.upload()).then((url) => console.log(url));
-   */
   @FlattenZodError
-  public async upload(): Promise<string> {
+  @FlattenZodError
+  public async upload<T>(): Promise<T> {
     const audio = this.getOrThrowAudio();
 
-    const { storageApiUrl, fetchOptions } = z
-      .object({
-        storageApiUrl: z
-          .string({
-            description: 'The URL of the storage API to upload the audio to.',
-            invalid_type_error: 'storage API URL is not of type string',
-            required_error: 'storage API URL is required',
-          })
-          .url({
-            message: 'storage API URL is not a valid URL',
-          }),
-        fetchOptions: z
-          .object({
-            headers: z.record(z.string()).optional(),
-          })
-          .optional(),
-      })
-      .parse({
-        storageApiUrl: this._settings.values.storageApiUrl,
-        fetchOptions: this._settings.values.fetchOptions,
-      });
-
-    const response = await fetch(storageApiUrl, {
-      ...fetchOptions,
-      method: 'POST',
-      body: audio,
-      cache: 'no-cache',
-      headers: {
-        'Content-Type': 'audio/mp3',
-        ...fetchOptions?.headers,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('failed to upload audio');
+    const uploadHandler = this._settings.values.uploadHandler;
+    if (!uploadHandler || typeof uploadHandler !== 'function') {
+      throw new ValidationError('uploadHandler is not defined or is not a function');
     }
-    const json = await response.json();
 
-    const { url: uploadedUrl } = z
-      .object({
-        url: z
-          .string({
-            description: 'The URL of the uploaded audio.',
-            invalid_type_error: 'URL is not of type string',
-            required_error: 'URL is required',
-          })
-          .url(),
-      })
-      .parse(json);
-    return uploadedUrl;
+    return uploadHandler<T>(audio);
   }
 
   /**
