@@ -16,7 +16,7 @@ jobs:
       - name: Install Node.js 🔥
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install pnpm 👀
         uses: pnpm/action-setup@v2
@@ -54,21 +54,21 @@ jobs:
         if: always() # Also generate the report if tests are failing
         uses: davelosert/vitest-coverage-report-action@v2
 
-      # - name: Get Coverage for badge 🔢
-      #   run: |
-      #     COVERAGE="$(cat coverage/coverage-summary.json | jq -r '.total.lines.pct')"
-      #     echo "COVERAGE=$(echo ${COVERAGE})" >> $GITHUB_ENV
+      - name: Get Coverage for badge 🔢
+        run: |
+          COVERAGE="$(cat coverage/coverage-summary.json | jq -r '.total.lines.pct')"
+          echo "COVERAGE=$(echo ${COVERAGE})" >> $GITHUB_ENV
 
-      # - name: Create coverage badge ✍🏽
-      #   uses: schneegans/dynamic-badges-action@v1.6.0
-      #   with:
-      #     auth: ${{ secrets.GIST_SECRET }}
-      #     gistID: 275fdb9d0c3b23cafa916535c807ce6a
-      #     filename: ts-npm-template-coverage.json
-      #     label: Code Coverage
-      #     message: ${{ env.COVERAGE }}
-      #     color: green
-      #     namedLogo: vitest
+      - name: Create coverage badge ✍🏽
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 275fdb9d0c3b23cafa916535c807ce6a
+          filename: ts-npm-template-coverage.json
+          label: Code Coverage
+          message: ${{ env.COVERAGE }}
+          color: green
+          namedLogo: vitest
 
       - name: Upload Test Results ⏫
         uses: actions/upload-artifact@v4
@@ -93,13 +93,13 @@ jobs:
       - name: Install Node.js 🔥
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install pnpm 👀
         uses: pnpm/action-setup@v2
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: false
 
       - name: Get pnpm store directory 🏪
@@ -126,6 +126,6 @@ jobs:
 
       - name: Release 🚀
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TTS_GITHUB_TOKEN }}
+          # NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm semantic-release
