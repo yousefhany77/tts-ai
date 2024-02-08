@@ -127,5 +127,5 @@ jobs:
       - name: Release 🚀
         env:
           GITHUB_TOKEN: ${{ secrets.TTS_GITHUB_TOKEN }}
-          # NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm semantic-release
