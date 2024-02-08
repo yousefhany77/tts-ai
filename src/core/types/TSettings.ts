@@ -11,18 +11,14 @@ interface DefaultSettings {
   model?: string;
 
   /**
-   * storageApiUrl is the url of the storage api server to upload the audio to it instead of saving it locally
-   * it should accept POST requests with the audio as binary in the body
-   * the response should be the url of the uploaded audio
-   */
-  storageApiUrl?: string;
-
-  fetchOptions?: Omit<RequestInit, 'body' | 'method'>;
-
-  /**
    * audioDir is the directory to save the audio in
    */
   audioDir?: string;
+
+  /**
+   * Upload handler for the audio
+   */
+  uploadHandler?: <T = unknown>(audio: ArrayBuffer) => Promise<T>;
 }
 
 interface TGoogleSettings extends DefaultSettings {

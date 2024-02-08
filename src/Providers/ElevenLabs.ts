@@ -20,8 +20,8 @@ export class TtsElevenLabs extends TtsAbstract<TtsProviders.ElevenLabs> {
   static readonly elevenLabsApiUrl = 'https://api.elevenlabs.io/v1';
   private callApi = async (url: string, options: RequestInit): Promise<Response> => {
     options.headers = {
-      'Content-Type': 'application/json',
       ...options.headers,
+      'Content-Type': 'application/json',
       'xi-api-key': this._settings.values.apiKey as string,
     };
     const response = await fetch(url, options);
@@ -46,7 +46,6 @@ export class TtsElevenLabs extends TtsAbstract<TtsProviders.ElevenLabs> {
   public async speak(text: string): Promise<Omit<this, 'speak'>> {
     const options = {
       method: 'POST',
-      ...this._settings.values.fetchOptions,
       body: JSON.stringify({
         model_id: this._settings.values.model,
         text,
@@ -65,7 +64,6 @@ export class TtsElevenLabs extends TtsAbstract<TtsProviders.ElevenLabs> {
   public async listModels(): Promise<string[]> {
     const options = {
       method: 'GET',
-      ...this._settings.values.fetchOptions,
     };
 
     const response = await this.callApi(`${TtsElevenLabs.elevenLabsApiUrl}/models`, options);
@@ -77,7 +75,6 @@ export class TtsElevenLabs extends TtsAbstract<TtsProviders.ElevenLabs> {
   public async listVoices(): Promise<IElevenLabsVoice[]> {
     const options = {
       method: 'GET',
-      ...this._settings.values.fetchOptions,
     };
 
     const response = await this.callApi(`${TtsElevenLabs.elevenLabsApiUrl}/voices`, options);

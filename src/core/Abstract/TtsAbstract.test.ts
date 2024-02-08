@@ -85,70 +85,21 @@ describe('TtsAbstract', () => {
       await expect(tts.save(123 as unknown as string)).rejects.toThrowError(ValidationError);
     });
 
-    it('should throw an error if fetchOptions is not an object', async () => {
+    it('should throw an error if the upload handler is not defined', async () => {
       const tts = new MockTtsAbstract({
         ...mockSettings,
-        fetchOptions: 'invalid-fetch-options' as any,
       });
       await expect(tts.upload()).rejects.toThrowError(ValidationError);
     });
     it('should throw an error if upload fails', async () => {
-      global.fetch = vi.fn().mockImplementationOnce(() =>
-        Promise.resolve({
-          json: () => Promise.resolve({ error: 'failed to upload audio' }),
-          ok: false,
-        })
-      );
+      const uploadHandler = vi.fn().mockImplementation(() => {
+        throw new Error('failed to upload audio');
+      });
       const tts = new MockTtsAbstract({
         ...mockSettings,
-        storageApiUrl: 'https://lorem.com/upload',
-        fetchOptions: {
-          headers: {
-            Authorization: 'Bearer token',
-          },
-        },
+        uploadHandler,
       });
       await expect(tts.upload()).rejects.toThrowError('failed to upload audio');
-    });
-    it('should throw an error if storageApiUrl is not a valid URL', async () => {
-      const tts = new MockTtsAbstract({
-        ...mockSettings,
-        storageApiUrl: 'invalid-url',
-      });
-      await expect(tts.upload()).rejects.toThrowError(ValidationError);
-    });
-
-    it('should throw an error if response JSON does not contain a URL', async () => {
-      global.fetch = vi.fn().mockImplementation(() =>
-        Promise.resolve({
-          json: () => Promise.resolve({}),
-          ok: true,
-        })
-      );
-      const tts = new MockTtsAbstract(mockSettings);
-      await expect(tts.upload()).rejects.toThrowError(ValidationError);
-    });
-
-    it('should throw an error if uploadedUrl returned is not a string', async () => {
-      global.fetch = vi.fn().mockImplementation(() =>
-        Promise.resolve({
-          json: () => Promise.resolve({ url: 123 }),
-          ok: true,
-        })
-      );
-      const tts = new MockTtsAbstract(mockSettings);
-      await expect(tts.upload()).rejects.toThrowError(ValidationError);
-    });
-
-    it('should throw an error if uploadedUrl returned is not a valid URL', async () => {
-      global.fetch = vi.fn().mockImplementation(() =>
-        Promise.resolve({
-          json: () => Promise.resolve({ url: 'invalid-url' }),
-          ok: true,
-        })
-      );
-      const tts = new MockTtsAbstract(mockSettings);
-      await expect(tts.upload()).rejects.toThrowError(ValidationError);
     });
 
     it('should save audio to a local file', async () => {
@@ -166,17 +117,22 @@ describe('TtsAbstract', () => {
           ok: true,
         })
       );
+
+      const uploadHandler = async <R = string>(audio: ArrayBuffer): Promise<R> => {
+        const result = (
+          await fetch('https://lorem.com/upload', {
+            method: 'POST',
+            body: audio,
+          })
+        ).json();
+        return result as R;
+      };
       const tts = new MockTtsAbstract({
         ...mockSettings,
-        storageApiUrl: 'https://lorem.com/upload',
-        fetchOptions: {
-          headers: {
-            Authorization: 'Bearer token',
-          },
-        },
+        uploadHandler,
       });
-      const uploadedUrl = await tts.upload();
-      expect(uploadedUrl).toBe(AUDIO_URL);
+      const { url } = await tts.upload<{ url: string }>();
+      expect(url).toBe(AUDIO_URL);
     });
   });
 
