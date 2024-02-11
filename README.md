@@ -42,11 +42,16 @@ pnpm add text-to-speech
 ```ts
 import { TtsOpenAI } from 'text-to-speech';
 
+const uploadToS3 = (audio: ArrayBuffer) => {
+  // upload
+};
 const tts = new TtsOpenAI({
   apiKey: 'YOUR_API_KEY',
+  uploadHandler: uploadToS3,
 });
 
 await tts.speak('Hello world');
+await tts.upload();
 ```
 
 #### With .env file
@@ -59,6 +64,7 @@ import { TtsOpenAI } from 'text-to-speech';
 const tts = new TtsOpenAI();
 
 await tts.speak('Hello world');
+await tts.save();
 ```
 
 See [documentation](docs/README.md) for full usage details.
