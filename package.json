@@ -1,6 +1,6 @@
 {
   "name": "@yousefhany77/tts-ai",
-  "version": "0.0.0-development",
+  "version": "0.0.0",
   "description": "A project template to bootstrap NPM package with Typescript",
   "engines": {
     "node": ">=18.0.0",
