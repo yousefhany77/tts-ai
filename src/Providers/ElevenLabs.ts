@@ -1,8 +1,12 @@
 import { ValidationError } from 'zod-validation-error';
+import { ELEVEN_LABS_MAX_TTS_TEXT_LENGTH } from '~/consts';
 import { DefaultSettings, TtsAbstract, TtsProviders } from '~/core';
 import { IElevenLabsVoice, TElevenLabsError } from '~/core/types/TElevenLabs';
 import { TElevenLabsSettings } from '~/core/types/TSettings';
-import { FlattenZodError, OmitThisProperties } from '~/decorators';
+import { FlattenZodError } from '~/decorators';
+import { MaxLength } from '~/decorators/MaxLength';
+import { concatAudioBuffers } from '~/utils/concatArrayBuffer';
+import { splitLongText } from '~/utils/split';
 
 /**
  * TtsElevenLabs class with default settings
@@ -16,7 +20,6 @@ export class TtsElevenLabs extends TtsAbstract<TtsProviders.ElevenLabs> {
 
     super(mergedSettings);
   }
-
   static readonly elevenLabsApiUrl = 'https://api.elevenlabs.io/v1';
   private callApi = async (url: string, options: RequestInit): Promise<Response> => {
     options.headers = {
@@ -27,7 +30,7 @@ export class TtsElevenLabs extends TtsAbstract<TtsProviders.ElevenLabs> {
     const response = await fetch(url, options);
     if (!response.ok) {
       const status = response.status;
-      if (status === 400) {
+      if (status < 422) {
         const error = (await response.json()) as TElevenLabsError;
         throw new ValidationError(error.detail.message);
       }
@@ -36,14 +39,14 @@ export class TtsElevenLabs extends TtsAbstract<TtsProviders.ElevenLabs> {
         const messages = error.detail.map((detail) => `${detail.type}: ${detail.loc.join('.')} ${detail.msg}`);
         throw new ValidationError(messages.join('\n'));
       }
-      throw new ValidationError('Failed ElevenLabs API call');
+      throw new Error('Failed ElevenLabs API call');
     }
     return response;
   };
 
   @FlattenZodError
-  @OmitThisProperties(['speak'])
-  public async speak(text: string): Promise<Omit<this, 'speak'>> {
+  @MaxLength(ELEVEN_LABS_MAX_TTS_TEXT_LENGTH)
+  public async speak(text: string): Promise<Omit<this, 'speak' | 'longSpeak'>> {
     const options = {
       method: 'POST',
       body: JSON.stringify({
@@ -81,5 +84,26 @@ export class TtsElevenLabs extends TtsAbstract<TtsProviders.ElevenLabs> {
 
     const data = (await response.json()) as { voices: IElevenLabsVoice[] };
     return data.voices;
+  }
+  private async generateAudio(text: string): Promise<ArrayBuffer> {
+    await this.speak(text);
+    return this.getOrThrowAudio();
+  }
+
+  @FlattenZodError
+  public async longSpeak(text: string): Promise<Omit<this, 'speak' | 'longSpeak'>> {
+    const cleanText = text.replaceAll(/\s+/g, '');
+    const shortText = splitLongText(cleanText, ELEVEN_LABS_MAX_TTS_TEXT_LENGTH);
+    const maxConcurrentRequests = this._settings.values.maxConcurrentRequests || 2;
+    /**
+     * using p-limit to limit the number of concurrent requests
+     * used dynamic import because the library does not support commonjs
+     */
+    const limit = (await import('p-limit')).default(maxConcurrentRequests);
+
+    const values = await Promise.all(shortText.map((t) => limit(() => this.generateAudio(t))));
+    this.audio = concatAudioBuffers(values);
+
+    return this;
   }
 }

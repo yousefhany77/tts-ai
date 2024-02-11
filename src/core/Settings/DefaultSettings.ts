@@ -16,6 +16,13 @@ class DefaultSettings {
       provider: TtsProviders.ElevenLabs,
       voice: '29vD33N1CtxCmqQRPOHJ', // ElevenLabs voice id
       model: 'eleven_multilingual_v1',
+      maxConcurrentRequests: 2,
+    };
+  }
+  static get GoogleSettings(): Omit<TSettings<TtsProviders.Google>, 'apiKey'> {
+    return {
+      provider: TtsProviders.Google,
+      voice: { languageCode: 'en-GB', ssmlGender: 'MALE', name: 'en-GB-Neural2-D' },
     };
   }
 }
