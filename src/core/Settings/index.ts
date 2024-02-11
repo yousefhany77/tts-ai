@@ -1,6 +1,6 @@
 import z, { ZodError } from 'zod';
 import { ValidationError } from 'zod-validation-error';
-import { ProviderKeys, validateProvider } from '~/core/TtsProviders';
+import TtsProviders, { ProviderKeys, validateProvider } from '~/core/TtsProviders';
 import TSettings from '~/core/types/TSettings';
 import { Env } from '~/utils/Env';
 import DefaultSettings from './DefaultSettings';
@@ -23,10 +23,11 @@ class Settings<P extends ProviderKeys, T extends TSettings<P> = TSettings<P>> {
       /**
        * check or throw for apiKey
        */
-      const validApiKey = z.string().optional().parse(this._settings.apiKey);
+      if (this._settings.provider !== TtsProviders.Google) {
+        const validApiKey = z.string().optional().parse(this._settings.apiKey);
 
-      this._settings.apiKey = validApiKey || Env.get(this._settings.provider + '_TTS_API_KEY').toString();
-
+        this._settings.apiKey = validApiKey || Env.get(this._settings.provider + '_TTS_API_KEY').toString();
+      }
       /**
        * check or throw for audioDir
        */

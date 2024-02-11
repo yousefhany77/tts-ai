@@ -50,12 +50,28 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
    * const tts = new TtsOpenAi({ provider: TtsProviders.OpenAi });
    * tts.speak('Hello World').then((audioArrayBuffer) => console.log(audioArrayBuffer));
    */
-  public abstract speak(text: string): Promise<Omit<this, 'speak'>>;
+  public abstract speak(text: string): Promise<Omit<this, 'speak' | 'longSpeak'>>;
+
+  /**
+   * longSpeak is used to speak long text and returns the audio as an ArrayBuffer.
+   * it's used to bypass the text length limit of the TTS provider. by splitting the text   into multiple parts and then concatenating the audio parts. or use a native method from the provider if supported.
+   * @param {string} text - The text to be spoken.
+   * @returns {Promise<ArrayBuffer>} A promise that resolves with the audio as an ArrayBuffer.
+   * @example
+   * const tts = new TtsOpenAi({ provider: TtsProviders.OpenAi });
+   * tts.longSpeak('Hello World').then((audioArrayBuffer) => console.log(audioArrayBuffer));
+   */
+  public abstract longSpeak(text: string): Promise<Omit<this, 'speak' | 'longSpeak'>>;
+
+  /**
+   * Lists the available models for the TTS provider.
+   */
+  public abstract listModels(): Promise<unknown[]>;
 
   /**
    * Lists the available voices for the TTS provider.
    */
-  public abstract listModels(): Promise<string[]>;
+  public abstract listVoices(props?: unknown): Promise<unknown[]>;
 
   /**
    * Saves the audio in `this.audio` to a local file.
@@ -107,8 +123,9 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
    * change the voice of the tts
    */
   @FlattenZodError
-  public setVoice(voice: string): void {
+  public setVoice(voice: NonNullable<Settings<P, TSettings<P>>['_settings']['voice']>): this {
     this._settings.set('voice', voice);
+    return this;
   }
 
   /**

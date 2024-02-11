@@ -10,11 +10,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "~/*": ["./src/*"],
+      "~/*": ["./src/*"]
     },
     "sourceMap": true,
-    "strict": true,
+    "strict": true
   },
-  "include": ["./src/**/*.ts", "./src/**/*.test.ts", "__mocks__/openai.ts"],
-  "exclude": ["node_modules", "dist"],
+  "include": ["./src/**/*.ts", "./src/**/*.test.ts", "__mocks__/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
