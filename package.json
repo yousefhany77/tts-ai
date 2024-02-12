@@ -18,9 +18,14 @@
     "url": "https://youssefhany.dev"
   },
   "keywords": [
-    "typescript-template",
-    "npm-boilerplate",
-    "semantic-release-boilerplate"
+    "text-to-speech",
+    "ai",
+    "tts",
+    "openai",
+    "elevenLabs",
+    "google-cloud",
+    "eleven-labs-sdk",
+    "text-to-speech-api"
   ],
   "license": "MIT",
   "main": "./dist/index.js",
@@ -113,9 +118,8 @@
     ]
   },
   "dependencies": {
-    "concat-audio-buffers": "^1.0.0",
-    "dotenv-cli": "^7.3.0",
     "p-limit": "^5.0.0",
+    "tts-ai": "link:",
     "zod": "^3.22.4",
     "zod-validation-error": "^3.0.0"
   },
