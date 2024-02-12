@@ -1,4 +1,4 @@
-<h1 align="center" style="border-bottom: none;">@yousefhany77/tts-ai</h1>
+<h1 align="center" style="border-bottom: none;">tts-ai</h1>
 
 <p align="center">
   <a href="ttps://github.com/yousefhany77/tts-ai/actions/workflows/test-and-release.yml">
