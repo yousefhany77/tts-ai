@@ -1,5 +1,11 @@
 # @yousefhany77/tts-ai
 
+## 0.0.2
+
+### Patch Changes
+
+- updated readme and docs
+
 ## 0.0.0
 
 ### Major Changes
