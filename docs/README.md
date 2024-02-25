@@ -1,6 +1,6 @@
 # Docs
 
-in progress
+In progress with [docSlay](https://www.docslay.com/)
 
 ```
 
