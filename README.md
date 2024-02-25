@@ -32,7 +32,7 @@ With just a few lines of code, you can produce natural human-like voice audio fo
 ### Install
 
 ```
-pnpm add text-to-speech
+pnpm add tts-ai
 ```
 
 ### Usage
