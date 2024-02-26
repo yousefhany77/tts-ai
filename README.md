@@ -40,7 +40,7 @@ pnpm add tts-ai
 #### Without .env file
 
 ```ts
-import { TtsOpenAI } from 'text-to-speech';
+import { TtsOpenAI } from 'tts-ai';
 
 const uploadToS3 = (audio: ArrayBuffer) => {
   // upload
@@ -59,7 +59,7 @@ await tts.upload();
 `OpenAi_TTS_API_KEY = YOUR_API_KEY`
 
 ```ts
-import { TtsOpenAI } from 'text-to-speech';
+import { TtsOpenAI } from 'tts-ai';
 
 const tts = new TtsOpenAI();
 
