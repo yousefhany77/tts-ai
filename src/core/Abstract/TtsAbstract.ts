@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { existsSync, promises as fs, mkdirSync } from 'fs';
 import { dirname } from 'path';
 import * as z from 'zod';
@@ -84,7 +83,7 @@ export abstract class TtsAbstract<P extends ProviderKeys> {
   @FlattenZodError
   public async save(filePath?: string): Promise<string> {
     if (!filePath) {
-      filePath = `${this.audioDir}/${randomUUID()}.mp3`;
+      filePath = `${this.audioDir}/${Date.now()}.mp3`;
     }
 
     const path = await z
